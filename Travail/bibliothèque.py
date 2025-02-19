@@ -1,4 +1,17 @@
+import json
+import os
+
 livres = {}
+
+def charge_livres():
+    global livres
+    if os.path.exists('livres.json'):
+        with open('livres.json', 'r') as f:
+            livres = json.load(f)
+
+def sauvegarde_livres():
+    with open('livres.json', 'w') as f:
+        json.dump(livres, f, indent=4)
 
 def menu():
     print('''===== Menu =====
@@ -8,7 +21,8 @@ def menu():
 4 - Supprimer un livre
 5 - Quitter
 ''')
-    
+
+
 def option1():
     titre = input("Entrez le titre : ")
     auteur = input("Entrez l'auteur titre : ")
@@ -17,12 +31,16 @@ def option1():
     except ValueError:
         print("La date ne peut etre en lettre")
     livres[titre] = {"auteur": auteur, "date": date}
+    sauvegarde_livres()
     print(f'✅ Livre "{titre}" ajouté avec succès !')
 
 def option2():
+    if not livres:
+        print("📚 Aucune livre disponible.")
+        return
+    print("📚 Liste des livres :")
     for livre, infos in livres.items():
-        print("📚 Liste des livres :")
-        print(f"- {livre}, {infos['auteur']} {infos['date']}")
+        print(f"- {livre}, {infos['auteur']} ({infos['date']})")
 
         
 
@@ -35,11 +53,13 @@ def option3():
 
 def option4():
     titre = input("Entrez le titre à supprimer : ")
-    if titre in livres.items():
-      del livres[titre]
-      print(f'✅ Livre "{titre}" supprimé avec succès !')
+    if titre in livres:  
+        del livres[titre]
+        sauvegarde_livres()  
+        print(f'✅ Livre "{titre}" supprimé avec succès !')
     else:
-     print("Le livre est inexistant")
+        print("Le livre est introuvable")
+
 
 while True:
     menu()
@@ -56,4 +76,6 @@ while True:
         print("👋 Au revoir !")
         break
     else:
-       print("Option inexistant, veuillez réesayer")
+       print("Option introuvable, veuillez réesayer")
+
+charge_livres()
